@@ -1,26 +1,22 @@
 import { NextResponse } from "next/server";
-import { signAuthToken } from "../../../lib/auth";
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { username, password } = body ?? {};
+  const { username, password } = await req.json();
 
   if (
-    username === process.env.ADMIN_USER &&
-    password === process.env.ADMIN_PASS
+    username !== process.env.ADMIN_USER ||
+    password !== process.env.ADMIN_PASS
   ) {
-    const token = signAuthToken({ user: username });
-
-    const res = NextResponse.json({ ok: true });
-    res.cookies.set("auth_token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 12
-    });
-    return res;
+    return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
-  return NextResponse.json({ ok: false, message: "帳號或密碼錯誤" }, { status: 401 });
+  const res = NextResponse.json({ ok: true });
+
+  // ⭐ 只設定一個 cookie，不用 JWT
+  res.cookies.set("auth_token", "logged_in", {
+    httpOnly: true,
+    path: "/",
+  });
+
+  return res;
 }
