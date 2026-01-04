@@ -7,9 +7,9 @@
   "dependencies": {
     "@notionhq/client": "^5.6.0",
     "@types/react": "^19.2.7",
+    "jose": "^4.15.9",
     "next": "^16.1.1",
-    "react": "^19.2.3",
-    "jose": "^4.14.4"
+    "react": "^19.2.3"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
