@@ -1,5 +1,4 @@
 import { SignJWT, jwtVerify } from "jose";
-import { JwtPayload } from "jose";
 
 // 驗證環境變數是否存在
 const authSecret = process.env.AUTH_JWT_SECRET;
@@ -9,10 +8,12 @@ if (!authSecret) {
 
 const secret = new TextEncoder().encode(authSecret);
 
-// 定義 Token Payload 的類型
-export interface TokenPayload extends JwtPayload {
+// 定義 Token Payload 的類型（不依賴 jose 的 JwtPayload）
+export interface TokenPayload {
   userId?: string;
   email?: string;
+  iat?: number;
+  exp?: number;
   [key: string]: any;
 }
 
@@ -20,16 +21,17 @@ export interface TokenPayload extends JwtPayload {
 export async function signToken(payload: TokenPayload): Promise<string> {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
     .setExpirationTime("1h")
     .sign(secret);
 }
 
 // 驗證 token
-export async function verifyToken(token: string): Promise<TokenPayload> {
+export async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, secret);
     return payload as TokenPayload;
-  } catch (error) {
-    throw new Error(`Token verification failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+  } catch {
+    return null;
   }
 }
