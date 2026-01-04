@@ -13,7 +13,8 @@ export function getNotionClient(): Client {
     });
     
     // 驗證 client 是否正確初始化
-    if (!client || typeof client.databases?.query !== 'function') {
+    // 使用類型斷言，因為 TypeScript 類型定義可能不完整
+    if (!client || typeof (client.databases as any)?.query !== 'function') {
       throw new Error("Notion Client 初始化失敗：databases.query 方法不存在");
     }
     
