@@ -37,10 +37,31 @@ export default function AdminPage() {
 
   async function load() {
     setLoading(true);
-    const r = await fetch("/api/customers");
-    const j = await r.json();
-    setRows(j.rows ?? []);
-    setLoading(false);
+    try {
+      const r = await fetch("/api/customers");
+      const text = await r.text();
+      if (!text) {
+        throw new Error("伺服器返回空響應");
+      }
+      const j = JSON.parse(text);
+      
+      if (!r.ok) {
+        const errorMsg = j.error || `HTTP 錯誤 (狀態碼: ${r.status})`;
+        console.error("API Error:", errorMsg);
+        alert(`載入資料失敗: ${errorMsg}`);
+        setRows([]);
+        return;
+      }
+      
+      setRows(j.rows ?? []);
+    } catch (error: any) {
+      console.error("Error loading customers:", error);
+      const errorMsg = error.message || "未知錯誤";
+      alert(`載入資料失敗: ${errorMsg}`);
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { load(); }, []);

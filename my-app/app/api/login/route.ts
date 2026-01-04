@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     username !== process.env.ADMIN_USER ||
     password !== process.env.ADMIN_PASS
   ) {
-    return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    return NextResponse.json({ message: "帳號或密碼錯誤" }, { status: 401 });
   }
 
   const res = NextResponse.json({ ok: true });
