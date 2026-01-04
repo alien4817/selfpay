@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 // 使用靜態導入，確保在服務器端正確加載
 import { Client } from "@notionhq/client";
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     // 檢查環境變數
     const token = process.env.NOTION_TOKEN;
@@ -14,7 +14,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     }
 
     const body = await req.json();
-    const pageId = params.id;
+    const { id: pageId } = await params;
 
     // 創建 Notion client 實例
     const notion = new Client({
