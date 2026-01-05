@@ -29,9 +29,8 @@ export async function GET() {
     });
 
     // 取最近 50 筆（依購買日期 desc）
-    // 使用類型斷言，因為 TypeScript 類型定義可能不完整
-    const data = await (notion.databases as any).query({
-      database_id: DATABASE_ID,
+    const data = await notion.dataSources.query({
+      data_source_id: DATABASE_ID,
       sorts: [{ property: "購買日期", direction: "descending" }],
       page_size: 50
     });
