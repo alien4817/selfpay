@@ -1,25 +1,13 @@
 import { NextResponse } from "next/server";
-// 使用靜態導入，確保在服務器端正確加載
-import { Client } from "@notionhq/client";
+import { getNotionClient } from "@/lib/notion";
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
-    // 檢查環境變數
-    const token = process.env.NOTION_TOKEN;
-    if (!token) {
-      return NextResponse.json(
-        { ok: false, error: "NOTION_TOKEN 環境變數未設置" },
-        { status: 500 }
-      );
-    }
-
     const body = await req.json();
-    const { id: pageId } = await params;
+    const { id: pageId } = params;
 
     // 創建 Notion client 實例
-    const notion = new Client({
-      auth: token
-    });
+    const notion = getNotionClient();
 
     // 構建要更新的 properties
     const properties: any = {};
