@@ -1,20 +1,8 @@
 import { NextResponse } from "next/server";
-// 使用靜態導入，確保在服務器端正確加載
-import { Client } from "@notionhq/client";
-
-const DATABASE_ID = process.env.NOTION_DATABASE_ID || "";
+import { getNotionClient, DATABASE_ID } from "@/lib/notion";
 
 export async function GET() {
   try {
-    // 檢查環境變數
-    const token = process.env.NOTION_TOKEN;
-    if (!token) {
-      console.error("NOTION_TOKEN is not set");
-      return NextResponse.json(
-        { ok: false, error: "NOTION_TOKEN 環境變數未設置", rows: [] },
-        { status: 500 }
-      );
-    }
     if (!DATABASE_ID) {
       console.error("NOTION_DATABASE_ID is not set");
       return NextResponse.json(
@@ -23,14 +11,12 @@ export async function GET() {
       );
     }
 
-    // 創建 Notion client 實例
-    const notion = new Client({
-      auth: token
-    });
+    // 創建 Notion client 實例（包含方法存在性檢查）
+    const notion = getNotionClient();
 
     // 取最近 50 筆（依購買日期 desc）
-    const data = await notion.dataSources.query({
-      data_source_id: DATABASE_ID,
+    const data = await notion.databases.query({
+      database_id: DATABASE_ID,
       sorts: [{ property: "購買日期", direction: "descending" }],
       page_size: 50
     });
@@ -80,14 +66,6 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    // 檢查環境變數
-    const token = process.env.NOTION_TOKEN;
-    if (!token) {
-      return NextResponse.json(
-        { ok: false, error: "NOTION_TOKEN 環境變數未設置" },
-        { status: 500 }
-      );
-    }
     if (!DATABASE_ID) {
       return NextResponse.json(
         { ok: false, error: "NOTION_DATABASE_ID 環境變數未設置" },
@@ -98,9 +76,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     // 創建 Notion client 實例
-    const notion = new Client({
-      auth: token
-    });
+    const notion = getNotionClient();
 
     // 你也可以在這裡做欄位驗證（費用必須>=0、日期格式等等）
     const created = await notion.pages.create({
