@@ -15,7 +15,12 @@ export async function GET() {
     const notion = getNotionClient();
 
     // 取最近 50 筆（依購買日期 desc）
+<<<<<<< HEAD
     const data = await notion.databases.query({
+=======
+    // 使用類型斷言，因為 TypeScript 類型定義可能不完整
+    const data = await (notion.databases as any).query({
+>>>>>>> parent of 40b2906 (Merge pull request #1 from alien4817/codex/update-api-to-use-new-notion-syntax)
       database_id: DATABASE_ID,
       sorts: [{ property: "購買日期", direction: "descending" }],
       page_size: 50
