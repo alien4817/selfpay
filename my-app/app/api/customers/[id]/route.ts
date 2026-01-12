@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { getNotionClient } from "@/lib/notion";
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const body = await req.json();
-    const { id: pageId } = params;
+    const { id: pageId } = await params;
 
     // 創建 Notion client 實例
     const notion = getNotionClient();

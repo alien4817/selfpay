@@ -12,17 +12,21 @@ export function getNotionClient(): Client {
       auth: token
     });
     
-    // 驗證 client 是否正確初始化
-    // 使用類型斷言，因為 TypeScript 類型定義可能不完整
-    if (!client || typeof (client.databases as any)?.query !== 'function') {
-      throw new Error("Notion Client 初始化失敗：databases.query 方法不存在");
-    }
-    
     return client;
   } catch (error: any) {
     console.error("Failed to create Notion client:", error);
+    console.error("Error details:", {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+      tokenExists: !!token,
+      tokenLength: token?.length
+    });
     throw new Error(`無法創建 Notion Client: ${error.message}`);
   }
 }
 
+// Notion 資料庫 ID（從環境變數讀取）
+// 注意：在 API v2025-09-03 中，查詢需要使用 DATA_SOURCE_ID，但創建頁面仍使用 DATABASE_ID
 export const DATABASE_ID = process.env.NOTION_DATABASE_ID || "";
+export const DATA_SOURCE_ID = process.env.NOTION_DATA_SOURCE_ID || process.env.NOTION_DATABASE_ID || "";
