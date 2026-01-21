@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getNotionClient } from "@/lib/notion";
+import type { UpdatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 
 export async function PATCH(
   req: Request,
@@ -11,7 +12,7 @@ export async function PATCH(
 
     const notion = getNotionClient();
 
-    const properties: Record<string, unknown> = {};
+    const properties: UpdatePageParameters["properties"] = {};
     const isNonEmptyString = (value: unknown): value is string =>
       typeof value === "string" && value.trim().length > 0;
 
