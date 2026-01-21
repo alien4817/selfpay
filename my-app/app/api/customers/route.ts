@@ -1,5 +1,6 @@
 ﻿import { NextResponse } from "next/server";
 import { getNotionClient, DATABASE_ID, DATA_SOURCE_ID } from "@/lib/notion";
+import type { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 
 export async function GET() {
   try {
@@ -96,7 +97,7 @@ export async function POST(req: Request) {
     const isNonEmptyString = (value: unknown): value is string =>
       typeof value === "string" && value.trim().length > 0;
 
-    const properties: Record<string, unknown> = {
+    const properties: CreatePageParameters["properties"] = {
       顧客姓名: {
         title: [
           {
