@@ -1,52 +1,103 @@
 import { NextResponse } from "next/server";
 import { getNotionClient } from "@/lib/notion";
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const body = await req.json();
     const { id: pageId } = await params;
 
-    // 創建 Notion client 實例
     const notion = getNotionClient();
 
-    // 構建要更新的 properties
-    const properties: any = {};
+    const properties: Record<string, unknown> = {};
+    const isNonEmptyString = (value: unknown): value is string =>
+      typeof value === "string" && value.trim().length > 0;
 
     if ("顧客姓名" in body) {
-      properties["顧客姓名"] = { title: [{ text: { content: body["顧客姓名"] } }] };
+      const name = isNonEmptyString(body["顧客姓名"]) ? body["顧客姓名"] : "（未命名）";
+      properties["顧客姓名"] = { title: [{ text: { content: name } }] };
+    }
+    if ("病歷號" in body) {
+      if (typeof body["病歷號"] === "number" && Number.isFinite(body["病歷號"])) {
+        properties["病歷號"] = { number: body["病歷號"] };
+      }
     }
     if ("聯絡電話" in body) {
-      properties["聯絡電話"] = { phone_number: body["聯絡電話"] ?? null };
+      if (isNonEmptyString(body["聯絡電話"])) {
+        properties["聯絡電話"] = { rich_text: [{ text: { content: body["聯絡電話"] } }] };
+      }
     }
-    if ("電子郵件" in body) {
-      properties["電子郵件"] = { email: body["電子郵件"] ?? null };
+    if ("聯絡電話2" in body) {
+      if (isNonEmptyString(body["聯絡電話2"])) {
+        properties["聯絡電話2"] = { rich_text: [{ text: { content: body["聯絡電話2"] } }] };
+      }
     }
     if ("地址" in body) {
-      properties["地址"] = body["地址"] ? { rich_text: [{ text: { content: body["地址"] } }] } : { rich_text: [] };
+      if (isNonEmptyString(body["地址"])) {
+        properties["地址"] = { rich_text: [{ text: { content: body["地址"] } }] };
+      }
     }
-    if ("自費項目" in body) {
-      properties["自費項目"] = body["自費項目"] ? { select: { name: body["自費項目"] } } : { select: null };
+    if ("電子郵件" in body) {
+      if (isNonEmptyString(body["電子郵件"])) {
+        properties["電子郵件"] = { email: body["電子郵件"] };
+      }
     }
-    if ("費用金額" in body) {
-      properties["費用金額"] = typeof body["費用金額"] === "number" ? { number: body["費用金額"] } : { number: null };
-    }
-    if ("購買日期" in body) {
-      properties["購買日期"] = body["購買日期"] ? { date: { start: body["購買日期"] } } : { date: null };
-    }
-    if ("狀態" in body) {
-      properties["狀態"] = body["狀態"] ? { status: { name: body["狀態"] } } : { status: null };
-    }
-    if ("備註" in body) {
-      properties["備註"] = body["備註"] ? { rich_text: [{ text: { content: body["備註"] } }] } : { rich_text: [] };
+    if ("介紹者" in body) {
+      if (isNonEmptyString(body["介紹者"])) {
+        properties["介紹者"] = { rich_text: [{ text: { content: body["介紹者"] } }] };
+      }
     }
     if ("來源管道" in body) {
-      properties["來源管道"] = body["來源管道"] ? { select: { name: body["來源管道"] } } : { select: null };
+      if (isNonEmptyString(body["來源管道"])) {
+        properties["來源管道"] = { select: { name: body["來源管道"] } };
+      }
+    }
+    if ("指定醫師" in body) {
+      if (isNonEmptyString(body["指定醫師"])) {
+        properties["指定醫師"] = { people: [{ id: body["指定醫師"] }] };
+      }
+    }
+    if ("購買日期" in body) {
+      if (isNonEmptyString(body["購買日期"])) {
+        properties["購買日期"] = { date: { start: body["購買日期"] } };
+      }
+    }
+    if ("自費項目意願" in body) {
+      if (isNonEmptyString(body["自費項目意願"])) {
+        properties["自費項目意願"] = { select: { name: body["自費項目意願"] } };
+      }
+    }
+    if ("高檢項目" in body) {
+      if (isNonEmptyString(body["高檢項目"])) {
+        properties["高檢項目"] = { rich_text: [{ text: { content: body["高檢項目"] } }] };
+      }
+    }
+    if ("預算金額" in body) {
+      if (typeof body["預算金額"] === "number" && Number.isFinite(body["預算金額"])) {
+        properties["預算金額"] = { number: body["預算金額"] };
+      }
+    }
+    if ("狀態" in body) {
+      if (isNonEmptyString(body["狀態"])) {
+        properties["狀態"] = { status: { name: body["狀態"] } };
+      }
     }
     if ("後續追蹤日期" in body) {
-      properties["後續追蹤日期"] = body["後續追蹤日期"] ? { date: { start: body["後續追蹤日期"] } } : { date: null };
+      if (isNonEmptyString(body["後續追蹤日期"])) {
+        properties["後續追蹤日期"] = { date: { start: body["後續追蹤日期"] } };
+      }
     }
     if ("顧客滿意度" in body) {
-      properties["顧客滿意度"] = body["顧客滿意度"] ? { select: { name: body["顧客滿意度"] } } : { select: null };
+      if (isNonEmptyString(body["顧客滿意度"])) {
+        properties["顧客滿意度"] = { select: { name: body["顧客滿意度"] } };
+      }
+    }
+    if ("備註" in body) {
+      if (isNonEmptyString(body["備註"])) {
+        properties["備註"] = { rich_text: [{ text: { content: body["備註"] } }] };
+      }
     }
 
     await notion.pages.update({
@@ -58,8 +109,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   } catch (error: any) {
     console.error("Error updating customer:", error);
     return NextResponse.json(
-      { 
-        ok: false, 
+      {
+        ok: false,
         error: error.message || "Failed to update customer"
       },
       { status: 500 }
